@@ -1,18 +1,11 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-let isConnected = false;
-
-async function connectDB() {
-  const uri = process.env.MONGODB_URI;
-  if (!uri) {
-    throw new Error('MONGODB_URI environment variable is not set');
+export async function connectDB() {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  } catch (err) {
+    console.error("❌ MongoDB connection error:", err.message);
+    process.exit(1);
   }
-  if (isConnected) return;
-
-  mongoose.set('strictQuery', true);
-  await mongoose.connect(uri);
-  isConnected = true;
-  console.log('✅ MongoDB connected');
 }
-
-module.exports = { connectDB };
