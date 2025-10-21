@@ -1,3 +1,10 @@
+import { connectDB } from "./db.js";
+import { Restaurant } from "./models/Restaurant.js";
+import dotenv from "dotenv";
+
+dotenv.config();
+await connectDB();
+
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
@@ -87,4 +94,11 @@ app.post("/api/rate", (req, res) => {
 
 app.listen(port, () => {
   console.log(`🚀 Gemrieli API running on port ${port}`);
+});
+// 📍 Добавление ресторана
+app.post("/api/restaurants", async (req, res) => {
+  const { name, city, dishes } = req.body;
+  const restaurant = new Restaurant({ name, city, dishes });
+  await restaurant.save();
+  res.json({ message: "Restaurant added", restaurant });
 });
