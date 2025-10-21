@@ -1,32 +1,20 @@
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json({ limit: '2mb' }));
-app.use(morgan('dev'));
-
-// Health check
-app.get('/', (req, res) => {
-  res.send('Gemrieli API is running ✅');
-});
-
-// Example endpoint
-app.get('/api/top', (req, res) => {
-  const { dish = 'burger', city = 'Batumi' } = req.query;
-  res.json({
-    dish,
-    city,
-    topRestaurants: [
-      { name: 'Burger House', rating: 4.9 },
-      { name: 'Meat & Beer', rating: 4.8 },
-      { name: 'Batumi Grill', rating: 4.7 },
+export const restaurants = [
+  {
+    id: 1,
+    name: "Burger House",
+    city: "Batumi",
+    menu: [
+      { name: "Classic Burger", rating: 4.8, reviews: 15 },
+      { name: "Cheese Burger", rating: 4.6, reviews: 9 },
     ],
-  });
-});
-
-// ✅ Export app for Vercel
-module.exports = app;
+  },
+  {
+    id: 2,
+    name: "Meat & Beer",
+    city: "Batumi",
+    menu: [
+      { name: "Beef Steak", rating: 4.9, reviews: 22 },
+      { name: "Pork Ribs", rating: 4.7, reviews: 11 },
+    ],
+  },
+];
