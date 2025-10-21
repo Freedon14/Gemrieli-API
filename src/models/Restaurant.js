@@ -1,14 +1,16 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
-const RestaurantSchema = new mongoose.Schema(
-  {
-    name: { type: String, required: true, trim: true },
-    address: { type: String, trim: true },
-    city: { type: String, trim: true },
-    social_links: [{ type: String }],
-    website: { type: String, trim: true }
-  },
-  { timestamps: true }
-);
+const dishSchema = new mongoose.Schema({
+  name: String,
+  rating: { type: Number, default: 0 },
+  reviews: { type: Number, default: 0 },
+});
 
-module.exports = mongoose.model('Restaurant', RestaurantSchema);
+const restaurantSchema = new mongoose.Schema({
+  name: String,
+  city: String,
+  dishes: [dishSchema],
+});
+
+// 🟢 Исправленный экспорт
+export const Restaurant = mongoose.model("Restaurant", restaurantSchema);
