@@ -31,3 +31,16 @@ app.get("/api/top", (req, res) => {
 app.listen(port, () => {
   console.log(`🚀 Server running on port ${port}`);
 });
+app.get("/api/top", (req, res) => {
+  const { dish = "burger", city = "Batumi" } = req.query;
+
+  res.json({
+    dish,
+    city,
+    topRestaurants: [
+      { name: "Burger House", rating: 4.9 },
+      { name: "Meat & Beer", rating: 4.8 },
+      { name: "Batumi Grill", rating: 4.7 },
+    ],
+  });
+});
