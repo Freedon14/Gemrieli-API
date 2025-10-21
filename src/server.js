@@ -1,46 +1,90 @@
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
+import { restaurants } from "./data/mockData.js";
 
 const app = express();
 const port = process.env.PORT || 8080;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
 
-// Routes
+// 🟢 Главная проверка
 app.get("/", (req, res) => {
   res.json({ message: "Gemrieli API is running ✅" });
 });
 
+// 🍔 ТОП блюд
 app.get("/api/top", (req, res) => {
-  res.json({
-    dish: "burger",
-    city: "Batumi",
-    topRestaurants: [
-      { name: "Burger House", rating: 4.9 },
-      { name: "Meat & Beer", rating: 4.8 },
-      { name: "Batumi Grill", rating: 4.7 },
-    ],
-  });
+  const { dish = "", city = "Batumi" } = req.query;
+  const results = restaurants
+    .filter((r) => r.city.toLowerCase() === city.toLowerCase())
+    .map((r) => ({
+      restaurant: r.name,
+      bestDish: r.menu.find((m) =>
+        m.name.toLowerCase().includes(dish.toLowerCase())
+      ),
+    }))
+    .filter((item) => item.bestDish);
+
+  res.json({ city, dish, results });
 });
 
-// Start server
+// 🏠 Все рестораны
+app.get("/api/restaurants", (req, res) => {
+  const { city } = req.query;
+  const list = city
+    ? restaurants.filter((r) => r.city.toLowerCase() === city.toLowerCase())
+    : restaurants;
+  res.json(list);
+});
+
+// 🍽️ Информация о конкретном блюде
+app.get("/api/dish/:name", (req, res) => {
+  const { name } = req.params;
+  const dishes = [];
+
+  restaurants.forEach((r) => {
+    r.menu.forEach((m) => {
+      if (m.name.toLowerCase().includes(name.toLowerCase())) {
+        dishes.push({
+          restaurant: r.name,
+          city: r.city,
+          dish: m.name,
+          rating: m.rating,
+        });
+      }
+    });
+  });
+
+  if (dishes.length === 0)
+    return res.status(404).json({ message: "Dish not found" });
+
+  res.json(dishes);
+});
+
+// ⭐ Добавление рейтинга блюду
+app.post("/api/rate", (req, res) => {
+  const { restaurantId, dishName, rating } = req.body;
+  const restaurant = restaurants.find((r) => r.id === restaurantId);
+
+  if (!restaurant)
+    return res.status(404).json({ message: "Restaurant not found" });
+
+  const dish = restaurant.menu.find(
+    (m) => m.name.toLowerCase() === dishName.toLowerCase()
+  );
+
+  if (!dish) return res.status(404).json({ message: "Dish not found" });
+
+  // Простейшая модель перерасчета рейтинга
+  dish.reviews += 1;
+  dish.rating = (dish.rating * (dish.reviews - 1) + rating) / dish.reviews;
+
+  res.json({ message: "Rating added", dish });
+});
+
 app.listen(port, () => {
-  console.log(`🚀 Server running on port ${port}`);
-});
-app.get("/api/top", (req, res) => {
-  const { dish = "burger", city = "Batumi" } = req.query;
-
-  res.json({
-    dish,
-    city,
-    topRestaurants: [
-      { name: "Burger House", rating: 4.9 },
-      { name: "Meat & Beer", rating: 4.8 },
-      { name: "Batumi Grill", rating: 4.7 },
-    ],
-  });
+  console.log(`🚀 Gemrieli API running on port ${port}`);
 });
