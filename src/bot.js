@@ -4,37 +4,47 @@ import axios from "axios";
 const bot = new TelegramBot(process.env.BOT_TOKEN, { polling: true });
 const API_URL = "https://gemrielibot.onrender.com/api";
 
-// /start — приветствие
-bot.onText(/\/start/, (msg) => {
-  const text = `
-👋 Welcome to *Gemrieli*!  
-Discover the best-rated dishes in your city 🍽️  
-Try: /top burger or /top steak
+// 🟢 /start — მისალმება
+bot.onText(/\/start/, async (msg) => {
+  const chatId = msg.chat.id;
+  const logo = "https://i.ibb.co/6vqtX6B/gemrieli-logo.png"; // ჩაანაცვლე შენს ლოგოთი
+
+  const welcomeText = `
+👋 კეთილი იყოს შენი მობრძანება *Gemrieli*-ში!  
+აღმოაჩინე საუკეთესო კერძები შენს ქალაქში 🍽️  
+
+აირჩიე ქალაქი 👇
 `;
-  bot.sendMessage(msg.chat.id, text, { parse_mode: "Markdown" });
+
+  await bot.sendPhoto(chatId, logo, { caption: welcomeText, parse_mode: "Markdown" });
+
+  bot.sendMessage(chatId, "🏙️ აირჩიე ქალაქი:", {
+    reply_markup: {
+      keyboard: [["ბათუმი", "თბილისი"]],
+      resize_keyboard: true,
+      one_time_keyboard: true,
+    },
+  });
 });
 
-// /top <dish> — поиск по блюду
-bot.onText(/\/top (.+)/, async (msg, match) => {
-  const dish = match[1];
+// 🟢 ქალაქის არჩევა
+bot.on("message", async (msg) => {
   const chatId = msg.chat.id;
+  const text = msg.text;
 
-  try {
-    const res = await axios.get(`${API_URL}/top?dish=${dish}&city=Batumi`);
-    const data = res.data.results;
-
-    if (!data || data.length === 0) {
-      return bot.sendMessage(chatId, `😔 No results found for *${dish}* in Batumi.`, { parse_mode: "Markdown" });
-    }
-
-    let reply = `🍴 *Top places for ${dish}:*\n\n`;
-    data.forEach((item, i) => {
-      reply += `${i + 1}. ${item.restaurant} — ⭐ ${item.bestDish.rating}\n`;
-    });
-
-    bot.sendMessage(chatId, reply, { parse_mode: "Markdown" });
-  } catch (error) {
-    console.error("Bot error:", error.message);
-    bot.sendMessage(chatId, "⚠️ Something went wrong. Please try again later.");
+  if (text === "ბათუმი" || text === "თბილისი") {
+    bot.sendMessage(chatId, `✅ არჩეული ქალაქი: *${text}*`, { parse_mode: "Markdown" });
+    showMainMenu(chatId, text);
   }
 });
+
+// 🟢 მთავარი მენიუ
+function showMainMenu(chatId, city) {
+  bot.sendMessage(chatId, `🍽️ რას იზამ *${city}*-ში?`, {
+    parse_mode: "Markdown",
+    reply_markup: {
+      keyboard: [["🏆 ტოპ კერძები", "🔍 მოძებნე კერძი"], ["⭐ შეაფასე კერძი", "ℹ️ შესახებ"]],
+      resize_keyboard: true,
+    },
+  });
+}
