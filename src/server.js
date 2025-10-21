@@ -1,3 +1,4 @@
+import "./bot.js";
 import { connectDB } from "./db.js";
 import { Restaurant } from "./models/Restaurant.js";
 import dotenv from "dotenv";
