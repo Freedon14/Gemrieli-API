@@ -103,3 +103,4 @@ app.post("/api/restaurants", async (req, res) => {
   await restaurant.save();
   res.json({ message: "Restaurant added", restaurant });
 });
+import "./bot.js";
