@@ -7,7 +7,7 @@ const API_URL = "https://gemrielibot.onrender.com/api";
 // 🟢 /start — მისალმება
 bot.onText(/\/start/, async (msg) => {
   const chatId = msg.chat.id;
-  const logo = "https://i.ibb.co/6vqtX6B/gemrieli-logo.png"; // ჩაანაცვლე შენს ლოგოთი
+  const logo = "/logo.jpg"; // ჩაანაცვლე შენს ლოგოთი
 
   const welcomeText = `
 👋 კეთილი იყოს შენი მობრძანება *Gemrieli*-ში!  
